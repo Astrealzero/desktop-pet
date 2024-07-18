@@ -9,7 +9,7 @@ yyjpshuzu = ['music/mdx/jp_zh/c0.wav', 'music/mdx/jp_zh/c1.wav', 'music/mdx/jp_z
 
 zhuangtai = r"./img/mdx/mdxzll.gif"
 
-mdxrenwul = [r"./img/mdx/mdxzll.gif", r"./img/mdx/mdxxfl.gif", r"./img/mdx/mdxzhql.gif",
+renwul = [r"./img/mdx/mdxzll.gif", r"./img/mdx/mdxxfl.gif", r"./img/mdx/mdxzhql.gif",
              r"./img/mdx/mdxtsl.gif", r"./img/mdx/mdxzdl.gif", r"./img/mdx/mdxmovel.gif"]
-mdxrenwur = [r"./img/mdx/mdxzlr.gif", r"./img/mdx/mdxxfr.gif", r"./img/mdx/mdxzhqr.gif",
+renwur = [r"./img/mdx/mdxzlr.gif", r"./img/mdx/mdxxfr.gif", r"./img/mdx/mdxzhqr.gif",
              r"./img/mdx/mdxtsr.gif", r"./img/mdx/mdxzdr.gif", r"./img/mdx/mdxmover.gif"]
