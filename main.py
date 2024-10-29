@@ -1,7 +1,8 @@
+import random
 import sys
 import time
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QMovie, QCursor, QMouseEvent
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMenu, qApp
 
@@ -33,13 +34,15 @@ class M_Win(QWidget):
 
         #  初始状态
         self.init_RenWu()
+        self.petNormalAction()
+        self.petNormalAction3()
 
     #  初始状态
     def init_RenWu(self):
         # 人物模型
         self.renwumoxing = zxskdshujv
         # 人物状态
-        self.zhuangtai = self.renwumoxing.zhuangtai
+        self.zhuangtai = 0
         # 人物方向，左true，右false
         self.renwufangxiang = True
         self.renwul = self.renwumoxing.renwul
@@ -61,14 +64,55 @@ class M_Win(QWidget):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint | Qt.SplashScreen)  # 置顶，去掉边框，隐藏任务栏
         self.setAttribute(Qt.WA_TranslucentBackground)  # 窗体背景透明
         # 初始化
-        movie = QMovie(self.zhuangtai)  # r"./img/zxskd/zxskdzdl.gif"
+        movie = QMovie(self.renwul[self.zhuangtai])  # r"./img/zxskd/zxskdzdl.gif"
         self.label.setMovie(movie)
         movie.start()
         # 右键菜单声明
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.RightMenuShow)
 
-    # 菜单
+        # 人物正常待机随机方向
+
+    def petNormalAction(self):
+        # 每隔一段时间换个方向
+        # 定时器设置
+        self.timer1 = QTimer()
+        # 时间到了自动执行
+        self.timer1.timeout.connect(self.petNormalAction2)
+        self.timer1.timeout.connect(self.Renwudongzuo)
+        # 动作时间切换设置,每5分钟换一次
+        self.timer1.start(300000)
+
+
+    def petNormalAction2(self):
+        self.renwufangxiang = not self.renwufangxiang
+
+    # 人物正常待机随机动作
+    def petNormalAction3(self):
+        # 每隔一段时间随机动作
+        # 定时器设置
+        self.timer2 = QTimer()
+        # 时间到了自动执行
+        self.timer2.timeout.connect(self.petNormalAction4)
+        # 动作时间切换设置,每10分钟换一次
+        self.timer2.start(360000)
+
+    def petNormalAction4(self):
+        random_list = [0, 2]
+        random_list2 = random.choice(random_list)
+        if self.renwufangxiang:
+            movie = QMovie(self.renwul[random_list2])
+        else:
+            movie = QMovie(self.renwur[random_list2])
+        self.zhuangtai = random_list2
+        # 将动画添加到label中
+        self.label.setMovie(movie)
+        # 开始播放动画
+        movie.start()
+        # 宠物状态设置为正常待机
+        self.flag1 = 0
+
+    # 右键菜单交互菜单
     def RightMenuShow(self, position):
         menu = QMenu()
         # 菜单栏
@@ -110,18 +154,19 @@ class M_Win(QWidget):
 
     #  人物动作切换模块
     def Renwudongzuo(self):
-        # condition记录宠物状态，宠物状态为0时，代表正常待机
+        # flag1记录宠物状态，宠物状态为0时，代表正常待机
         if not self.flag1:
-            # 读取特殊状态图片路径 flag1 == 1
+            # 读取特殊状态图片路径 flag1 == 0
             if self.renwufangxiang:
-                movie = QMovie(self.renwul[0])
+                movie = QMovie(self.renwul[self.zhuangtai])
             else:
-                movie = QMovie(self.renwur[0])
+                movie = QMovie(self.renwur[self.zhuangtai])
             # 将动画添加到label中
             self.label.setMovie(movie)
             # 开始播放动画
             movie.start()
-        # condition不为0，转为切换特有的动作，实现宠物的点击反馈
+            self.flag1 = 0
+        # flag1不为0，转为切换特有的动作，实现宠物的点击反馈
         # 这里可以通过else-if语句往下拓展做更多的交互功能
         if (self.flag1 == 1):
             # 读取特殊状态图片路径 flag1 == 1
@@ -136,6 +181,7 @@ class M_Win(QWidget):
             # 宠物状态设置为正常待机
             self.flag1 = 0
 
+
     #  菜单人物动作切换模块
     def Renwudongzuoqihuan(self, dongzuobianhao):
         # 切换人物右动作
@@ -143,23 +189,25 @@ class M_Win(QWidget):
             movie = QMovie(self.renwul[dongzuobianhao])
             self.label.setMovie(movie)
             movie.start()
-            self.zhuangtai = self.renwul[dongzuobianhao]
+            self.zhuangtai = dongzuobianhao
         # 切换人物左动作
         else:
             movie = QMovie(self.renwur[dongzuobianhao])
             self.label.setMovie(movie)
             movie.start()
-            self.zhuangtai = self.renwur[dongzuobianhao]
+            self.zhuangtai = dongzuobianhao
 
     # 载入人物数据，进行人物切换
     def Renwuqiehuan(self, mdxshujv):
         self.renwumoxing = mdxshujv
         self.yycnshuzu = self.renwumoxing.yycnshuzu
         self.yyjpshuzu = self.renwumoxing.yyjpshuzu
-        self.zhuangtai = self.renwumoxing.zhuangtai
         self.renwul = self.renwumoxing.renwul
         self.renwur = self.renwumoxing.renwur
-        movie = QMovie(self.zhuangtai)
+        if self.renwufangxiang:
+            movie = QMovie(self.renwul[self.zhuangtai])
+        else:
+            movie = QMovie(self.renwur[self.zhuangtai])
         self.label.setMovie(movie)
         movie.start()
 
@@ -177,6 +225,21 @@ class M_Win(QWidget):
         event.accept()
         # 拖动时鼠标图形的设置
         self.setCursor(QCursor(Qt.OpenHandCursor))
+
+        # 鼠标点击时效果
+        self.flag3 = self.zhuangtai
+        self.zhuangtai = 3
+        if self.renwufangxiang:
+            movie = QMovie(self.renwul[self.zhuangtai])
+        else:
+            movie = QMovie(self.renwur[self.zhuangtai])
+        self.label.setMovie(movie)
+        movie.start()
+        self.timer3 = QTimer()
+        # 时间到了自动执行
+        self.timer3.timeout.connect(self.Mousetime)
+        # 动作时间切换设置
+        self.timer3.start(1500)
 
     # 鼠标移动时调用，实现宠物随鼠标移动
     def mouseMoveEvent(self, event):
@@ -208,12 +271,13 @@ class M_Win(QWidget):
         # 设置鼠标形状 Qt.ClosedHandCursor   非指向手
         self.setCursor(Qt.ClosedHandCursor)
 
-    # 计时器
-    def countdown(self, t):
-        start_time = time.time()
-        while time.time() - start_time < t:
-            pass
-        movie = QMovie(self.zhuangtai)
+    # 鼠标点击时动作计时器执行效果
+    def Mousetime(self):
+        self.zhuangtai = self.flag3
+        if self.renwufangxiang:
+            movie = QMovie(self.renwul[self.zhuangtai])
+        else:
+            movie = QMovie(self.renwur[self.zhuangtai])
         self.label.setMovie(movie)
         movie.start()
 
